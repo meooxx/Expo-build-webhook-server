@@ -1,19 +1,32 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"log"
-	// "net/http"
+)
+
+const (
+	GIN_MODE  = "GIN_MODE"
+	GIN_DEBUG = "debug"
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if os.Getenv(GIN_MODE) == GIN_DEBUG {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
-	log.Println("1\n23")
+
+	log.Println(os.Getenv(GIN_MODE))
 	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "ok")
+	})
 	r.POST("/webhook", handleHook)
 
 	r.Run("0.0.0.0:10000")
