@@ -15,6 +15,9 @@ const (
 	GIN_RELEASE = "release"
 )
 
+func init() {
+	os.Setenv("TZ", "Asia/Shanghai")
+}
 func main() {
 	if os.Getenv(GIN_MODE) != GIN_RELEASE {
 		err := godotenv.Load(".env")

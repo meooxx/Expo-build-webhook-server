@@ -1,12 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
-	_ "io"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -56,14 +57,17 @@ type WebhookPayload struct {
 
 func handleHook(c *gin.Context) {
 	var artifacts WebhookPayload
-	c.ShouldBindBodyWith(&artifacts, binding.JSON)
+
 	body, _ := c.GetRawData()
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+	c.ShouldBindWith(&artifacts, binding.JSON)
 	secretKey := os.Getenv("SECRET_WEBHOOK_KEY")
 	h := hmac.New(sha1.New, []byte(secretKey))
 	h.Write(body)
 	hash := h.Sum(nil)
 	sign := c.GetHeader("expo-signature")
-	sha1 := fmt.Sprintf("sha1=%s", hex.EncodeToString(hash[:]))
+	sha1 := fmt.Sprintf("sha1=%s", hex.EncodeToString(hash))
+	log.Println(string(body))
 	log.Println(sha1, sign)
 	compareResult := subtle.ConstantTimeCompare([]byte(sign), []byte(sha1))
 	if compareResult == 0 {
