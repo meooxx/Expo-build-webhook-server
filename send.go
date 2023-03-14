@@ -36,7 +36,7 @@ func NewMarkdownMsg() DingMessage {
 
 func trySend(artifacts WebhookPayload) {
 	// 🎉release_testing_version
-	title := fmt.Sprintf("🎉release_%s_%s", artifacts.Metadata.BuildProfile, artifacts.Metadata.AppVersion)
+	title := fmt.Sprintf("🎉release_%s_%s_%s", artifacts.Metadata.BuildProfile, artifacts.Platform, artifacts.Metadata.AppVersion)
 	dingMessage := NewMarkdownMsg()
 	dingMessage.Markdown.Title = title
 	if artifacts.Status == FINISHED {
