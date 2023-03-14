@@ -1,10 +1,12 @@
 package main
 
 import (
+	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -55,7 +57,10 @@ func handleHook(c *gin.Context) {
 	var artifacts WebhookPayload
 	c.BindJSON(&artifacts)
 	secretKey := os.Getenv("SECRET_WEBHOOK_KEY")
-	hash := sha1.Sum([]byte(secretKey))
+	h := hmac.New(sha1.New, []byte(secretKey))
+	bodyRearder, _ := io.ReadAll(c.Request.Body)
+	h.Write(bodyRearder)
+	hash := h.Sum(nil)
 	sign := c.GetHeader("expo-signature")
 	sha1 := fmt.Sprintf("sha1=%s", hex.EncodeToString(hash[:]))
 	log.Println(sha1, sign)
