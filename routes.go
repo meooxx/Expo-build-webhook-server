@@ -6,12 +6,13 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
-	"io"
+	_ "io"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 const (
@@ -55,11 +56,11 @@ type WebhookPayload struct {
 
 func handleHook(c *gin.Context) {
 	var artifacts WebhookPayload
-	c.BindJSON(&artifacts)
+	c.ShouldBindBodyWith(&artifacts, binding.JSON)
+	body, _ := c.GetRawData()
 	secretKey := os.Getenv("SECRET_WEBHOOK_KEY")
 	h := hmac.New(sha1.New, []byte(secretKey))
-	bodyRearder, _ := io.ReadAll(c.Request.Body)
-	h.Write(bodyRearder)
+	h.Write(body)
 	hash := h.Sum(nil)
 	sign := c.GetHeader("expo-signature")
 	sha1 := fmt.Sprintf("sha1=%s", hex.EncodeToString(hash[:]))
