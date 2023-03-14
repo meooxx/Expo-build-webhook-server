@@ -37,8 +37,6 @@ type Metadata struct {
 	ReactNativeVersion string `form:"reactNativeVersion"`
 }
 
-// interface Status st
-
 type WebhookPayload struct {
 	Id                  string `form:"id"`
 	AccountName         string `form:"accountName" ` // "accountName": "dsokal",
@@ -57,16 +55,15 @@ func handleHook(c *gin.Context) {
 	var artifacts WebhookPayload
 	c.BindJSON(&artifacts)
 	secretKey := os.Getenv("SECRET_WEBHOOK_KEY")
-	hmac := sha1.New()
-	hash := hmac.Sum([]byte(secretKey))
+	hash := sha1.Sum([]byte(secretKey))
 	sign := c.GetHeader("expo-signature")
-	sha1 := fmt.Sprintf("sha1=%s", hex.EncodeToString(hash))
+	sha1 := fmt.Sprintf("sha1=%s", hex.EncodeToString(hash[:]))
+	log.Println(sha1, sign)
 	compareResult := subtle.ConstantTimeCompare([]byte(sign), []byte(sha1))
 	if compareResult == 0 {
 		c.String(http.StatusForbidden, "go away!")
 		return
 	}
-	log.Println(compareResult == 1)
 	go trySend(artifacts)
 	c.JSON(http.StatusOK, "Success")
 }

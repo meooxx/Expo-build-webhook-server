@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	GIN_MODE  = "GIN_MODE"
-	GIN_DEBUG = "debug"
+	GIN_MODE    = "GIN_MODE"
+	GIN_DEBUG   = "debug"
+	GIN_RELEASE = "release"
 )
 
 func main() {
-	if os.Getenv(GIN_MODE) == GIN_DEBUG {
+	if os.Getenv(GIN_MODE) != GIN_RELEASE {
 		err := godotenv.Load(".env")
 		if err != nil {
 			log.Fatal("Error loading .env file")
