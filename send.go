@@ -40,11 +40,11 @@ func trySend(artifacts WebhookPayload) {
 	dingMessage := NewMarkdownMsg()
 	dingMessage.Markdown.Title = title
 	if artifacts.Status == FINISHED {
-		buildDetailUrl := artifacts.Artifacts.BuildUrl
+		buildDetailUrl := artifacts.BuildDetailsPageUrl
 		pngByte, _ := qrcode.Encode(buildDetailUrl, qrcode.Medium, 256)
 		pngBase64 := base64.StdEncoding.EncodeToString(pngByte)
 		pngFile := fmt.Sprintf("%s%s", "data:image/png;base64,", pngBase64)
-		content := fmt.Sprintf("### yimi \n  %s  \n [build详情链接可下载](%s) \n > ![](%s)", title, buildDetailUrl, pngFile)
+		content := fmt.Sprintf("### yimi \n  %s  \n [build详情链接进入下载](%s) \n > ![](%s)", title, buildDetailUrl, pngFile)
 		dingMessage.Markdown.Text = content
 	} else if artifacts.Status == ERRORED {
 		dingMessage.Markdown.Text = fmt.Sprintf("### yimi \n  %s--❌  \n  👎👎👎👎👎👎废物前端又发布失败了吧", title)
